@@ -55,6 +55,11 @@ class GameFragment : Fragment() {
             binding.wordText.text = newWord
         })
 
+        // Observer for the Game finished event
+        viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer<Boolean> { hasFinished ->
+            if (hasFinished) gameFinished()
+        })
+
         // Inflate view and obtain an instance of the binding class
         binding = DataBindingUtil.inflate(
                 inflater,
@@ -109,9 +114,9 @@ class GameFragment : Fragment() {
      */
     private fun gameFinished() {
         Toast.makeText(activity, "Game has just finished", Toast.LENGTH_SHORT).show()
-        val action = GameFragmentDirections.actionGameToScore()
-        action.score = viewModel.score.value?:0
-        NavHostFragment.findNavController(this).navigate(action)
+       val action = GameFragmentDirections.actionGameToScore()
+      action.score = viewModel.score.value?:0
+       NavHostFragment.findNavController(this).navigate(action)
+        viewModel.onGameFinishComplete()
     }
-
 }
