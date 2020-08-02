@@ -1,11 +1,43 @@
 package com.example.android.guesstheword.screens.game
 
+import android.os.CountDownTimer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import timber.log.Timber
 
 class GameViewModel : ViewModel() {
+
+    private val timer: CountDownTimer
+
+
+    companion object {
+
+        // Time when the game is over
+        private const val DONE = 0L
+
+        // Countdown time interval
+        private const val ONE_SECOND = 1000L
+
+        // Total time for the game
+        private const val COUNTDOWN_TIME = 60000L
+
+
+
+    }
+
+    // Countdown time
+    private val _currentTime = MutableLiveData<Long>()
+    val currentTime: LiveData<Long>
+        get() = _currentTime
+
+
+
+
+
+
+
+
         // The current word
         private val _word = MutableLiveData<String>()
     val word: LiveData<String>
@@ -55,15 +87,32 @@ class GameViewModel : ViewModel() {
         resetList()
         nextWord()
         Timber.i("GameViewModel created!")
+
+        // Creates a timer which triggers the end of the game when it finishes
+        timer = object : CountDownTimer(COUNTDOWN_TIME, ONE_SECOND) {
+
+            override fun onTick(millisUntilFinished: Long) {
+                _currentTime.value = millisUntilFinished / ONE_SECOND
+            }
+
+            override fun onFinish() {
+                _currentTime.value = DONE
+                onGameFinish()
+            }
+        }
+
+        timer.start()
     }
+
     /**
      * Moves to the next word in the list
      */
     private fun nextWord() {
+        // Shuffle the word list, if the list is empty
         if (wordList.isEmpty()) {
-            onGameFinish()
+            resetList()
         } else {
-            //Select and remove a _word from the list
+            // Remove a word from the list
             _word.value = wordList.removeAt(0)
         }
     }
@@ -80,7 +129,8 @@ class GameViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        Timber.i( "GameViewModel destroyed!")
+       // Timber.i( "GameViewModel destroyed!")
+        timer.cancel()
     }
 
     private val _eventGameFinish = MutableLiveData<Boolean>()
@@ -95,6 +145,7 @@ class GameViewModel : ViewModel() {
     fun onGameFinishComplete() {
         _eventGameFinish.value = false
     }
+
 
 
 
