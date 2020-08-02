@@ -43,6 +43,13 @@ class GameFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
+        binding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.game_fragment,
+                container,
+                false
+        )
+
         Timber.i("Called ViewModelProviders.of")
 
         viewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
@@ -51,13 +58,9 @@ class GameFragment : Fragment() {
 // to all the data in the ViewModel
         binding.gameViewModel = viewModel
 
-        viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
-            binding.scoreText.text = newScore.toString()
-        })
-
-        viewModel.word.observe(viewLifecycleOwner, Observer { newWord ->
-            binding.wordText.text = newWord
-        })
+        // Specify the fragment view as the lifecycle owner of the binding.
+// This is used so that the binding can observe LiveData updates
+        binding.lifecycleOwner = viewLifecycleOwner
 
         // Observer for the Game finished event
         viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer<Boolean> { hasFinished ->
@@ -65,40 +68,11 @@ class GameFragment : Fragment() {
         })
 
         // Inflate view and obtain an instance of the binding class
-        binding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.game_fragment,
-                container,
-                false
-        )
 
 
-        updateScoreText()
-        updateWordText()
         return binding.root
 
     }
-
-
-    /** Methods for button click handlers **/
-
-
-
-
-    /** Methods for updating the UI **/
-
-    private fun updateWordText() {
-        binding.wordText.text = viewModel.word.value
-    }
-
-    private fun updateScoreText() {
-        binding.scoreText.text = viewModel.score.value.toString()
-    }
-
-
-    /**
-     * Called when the game is finished
-     */
     private fun gameFinished() {
         Toast.makeText(activity, "Game has just finished", Toast.LENGTH_SHORT).show()
        val action = GameFragmentDirections.actionGameToScore()
