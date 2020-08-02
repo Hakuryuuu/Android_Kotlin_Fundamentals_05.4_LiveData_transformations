@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import timber.log.Timber
 
 class GameViewModel : ViewModel() {
-    // The current word
-    val word = MutableLiveData<String>()
-    // The current score
-    val score = MutableLiveData<Int>()
+        // The current word
+        val word = MutableLiveData<String>()
+        // The current score
+        val score = MutableLiveData<Int>()
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
 
